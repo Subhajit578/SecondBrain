@@ -11,7 +11,7 @@ import "dotenv/config"
 import {hash} from './util'
 //@ts-ignore
 const JWT_SECRET:string = process.env.JWT_SECRET
-mongoose.connect("mongodb+srv://subhajit04:WyTkPq1qMp7tWkIm@secondbrain.3lf7abr.mongodb.net/secondbrain")
+mongoose.connect(process.env.MONGODB_URI as string)
 const app = express()
 app.use(express.json())
 app.use(cors())
