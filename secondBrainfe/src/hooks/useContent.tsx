@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { BACKEND_URL } from "../config"
 
 export interface Content {
     id: string;
@@ -13,12 +14,11 @@ export interface Content {
 export function useContent() : {contents:Content[],refresh:()=>void} {
     const [contents,setContents] = useState<Content[]>([])
     async function refresh() {
-        await axios.get<Content[]>(`http://localhost:3000/app/v1/getContent?t=${Date.now()}`, {
+        await axios.get<Content[]>(`${BACKEND_URL}/app/v1/getContent?t=${Date.now()}`, {
             headers: {
                 token: localStorage.getItem("token"),
             },
         }).then((response) => {
-            console.log(response.data[0])
             setContents(response.data)
         })
     }

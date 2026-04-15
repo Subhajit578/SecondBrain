@@ -59,7 +59,6 @@ app.post("/app/v1/signup", async function(req, res) {
 })
 app.post("/app/v1/signin", async function(req, res) {
     const UserInput  = req.body
-    console.log(JWT_SECRET)
     const parsedData = idealSigninUser.safeParse(UserInput)
     if(!parsedData.success){
         return res.status(411).send({message:"Invalid User Input Format"})
@@ -204,7 +203,8 @@ app.get("/api/v1/brain/getLink", isLoggedIn, async function (req,res) {
     try {
         const hash = await LinkModel.findOne({userId: userId})
         if(hash) {
-            res.status(200).send({Link : `http://localhost:3000/app/v1/brain/shareLink/${hash.hash}`})
+            const publicOrigin = (process.env.FRONTEND_PUBLIC_URL ?? "http://localhost:5173").replace(/\/$/, "")
+            res.status(200).send({Link : `${publicOrigin}/brain/share/${hash.hash}`})
         } else {
             res.status(404). send({message : "Sharable Link not updated"})
         }
@@ -231,4 +231,5 @@ app.get("/app/v1/brain/shareLink/:hash", async function (req,res){
         res.status(404).send({err:err})
     }
 })
-app.listen(3000)
+const PORT = Number(process.env.PORT) || 3000
+app.listen(PORT)

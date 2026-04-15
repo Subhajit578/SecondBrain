@@ -43,7 +43,7 @@ export function CreateContentModal({open, onClose}:{open : boolean, onClose :() 
         const body: any = {title, tags, type, date}
         if (link) body.link = link
         try {
-            await axios.post("http://localhost:3000/app/v1/addContent", body, {headers : {
+            await axios.post(`${BACKEND_URL}/app/v1/addContent`, body, {headers : {
                 "token" : localStorage.getItem("token")
             }})
             onClose();
@@ -86,9 +86,6 @@ export function CreateContentModal({open, onClose}:{open : boolean, onClose :() 
                         >
                             Add Content To Brain
                         </h1>
-                        <p className="mt-1 text-xs font-medium italic text-slate-700/85">
-                            Drop in a link, pick a type, tag it—done.
-                        </p>
                     </div>
                     <button
                         type="button"

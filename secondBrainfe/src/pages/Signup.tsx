@@ -14,12 +14,11 @@ export function Signup() {
     
      let username = usernameRef.current?.value.trim()
      let password = passwordRef.current?.value.trim()
-     console.log(email, password, username)
      if(!username || !password || !email) {
         alert("Enter the username Password Again")
      } 
      try{
-     const success = await axios.post("http://localhost:3000/app/v1/signup", {email,username, password})
+     const success = await axios.post(`${BACKEND_URL}/app/v1/signup`, {email,username, password})
      if(success.status == 200 || success.status == 201) {
         navigate("/signin")
      } else {

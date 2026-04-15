@@ -4,6 +4,7 @@ import { ShareIcon } from "../icons/ShareIcon";
 import { Tag } from "./Tag";
 import { DeleteIcon } from "../icons/DeleteIcon";
 import axios from "axios";
+import { BACKEND_URL } from "../config";
 
 /** X/mobile URLs for the same tweet — widgets.js expects twitter.com status URLs. */
 function normalizeTweetUrl(link: string): string {
@@ -80,7 +81,7 @@ interface CardProps {
 export function Card({id,title, link, type, icon, date, tag, onDelete} : CardProps) {
 
     async function deleteContent(id:string) {
-        await axios.delete("http://localhost:3000/app/v1/deleteContent",{
+        await axios.delete(`${BACKEND_URL}/app/v1/deleteContent`,{
             data: { contentId: id },
             headers: { token: localStorage.getItem("token") ?? "" }
           });
@@ -88,7 +89,7 @@ export function Card({id,title, link, type, icon, date, tag, onDelete} : CardPro
     }
     async function getLink(id:string): Promise<string | null> {
         try {
-        const res = await axios.get(`http://localhost:3000/app/v1/getContentById/${id}`,{
+        const res = await axios.get(`${BACKEND_URL}/app/v1/getContentById/${id}`,{
             data: {contentId: id}, 
             headers: { token: localStorage.getItem("token") ?? "" }})
             return res.data?.link ?? null
