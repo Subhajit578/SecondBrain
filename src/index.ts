@@ -9,6 +9,8 @@ import {UserModel, ContentModel, LinkModel, TagModel} from './db'
 import { isLoggedIn } from './middleware'
 import "dotenv/config"
 import {hash} from './util'
+import {embed} from './embed'
+import { extractText } from './extractText'
 //@ts-ignore
 const JWT_SECRET:string = process.env.JWT_SECRET
 mongoose.connect(process.env.MONGODB_URI as string)
@@ -108,6 +110,18 @@ app.post("/app/v1/addContent", isLoggedIn, async function(req, res) {
                 }
             }
             console.log("Reached here")
+            const textToEmbed = await extractText(
+                userContent.type,
+                userContent.title, 
+                userContent.link, 
+                userContent.tags
+            )
+            let embedding: number[] = [];
+            try {
+                embedding = await embed(textToEmbed)
+            } catch (err) {
+                console.error("Embedding failed, saving without it:", err);
+            }
             await ContentModel.create({
                 link : userContent.link,
                 userId : (req as any).id,
@@ -149,6 +163,15 @@ app.get("/app/v1/getContentById/:id", isLoggedIn, async function(req,res){
     } catch(err) {
         console.error("Failed to get content by id:", err)
         return res.status(404).send({error:err})
+    }
+})
+app.get("app/v1/search/:searchText", isLoggedIn, async function(req, res) {
+    const text = req.params.searchText
+    try {
+
+    } catch (err) {
+        console.log("search Error", err)
+        return res.status(500).send(err)
     }
 })
 app.get("/app/v1/getContentByType", isLoggedIn, async function(req,res){
