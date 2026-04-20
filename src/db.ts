@@ -1,5 +1,3 @@
-import { required } from "zod/mini";
-
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId
@@ -14,7 +12,8 @@ const Content = new Schema({
     type: {type:String, enum : ['document', 'tweet', 'youtube', 'link' , 'article'], required: true},
     title: {type:String, required: true},
     tags : [{type:ObjectId, ref:'Tags'}],
-    date : {type: Date}
+    date : {type: Date}, 
+    embedding : {type: [Number], default: []}
 })
 const Tags = new Schema({
     tag : {type:String, unique: true, trim: true}

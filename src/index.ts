@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import {safeParse, uuidv4, z} from 'zod'
 import cors from 'cors'
-import mongoose from 'mongoose'
+import mongoose, { Query } from 'mongoose'
 import { ObjectId } from 'mongodb'
 import {UserModel, ContentModel, LinkModel, TagModel} from './db'
 import { isLoggedIn } from './middleware'
@@ -128,7 +128,8 @@ app.post("/app/v1/addContent", isLoggedIn, async function(req, res) {
                 type: userContent.type,
                 title : userContent.title, 
                 tags : tagIds,
-                date: new Date()
+                date: new Date(),
+                embedding : embedding
             })
             return res.status(200).send({message:"Content added to the Brain"})
         } catch (err) {
@@ -165,9 +166,51 @@ app.get("/app/v1/getContentById/:id", isLoggedIn, async function(req,res){
         return res.status(404).send({error:err})
     }
 })
-app.get("app/v1/search/:searchText", isLoggedIn, async function(req, res) {
-    const text = req.params.searchText
+app.get("/app/v1/search", isLoggedIn, async function(req, res) {
+    const text = (req.query.q as string)?.trim()
+    const userId = (req as any).id
+    if(!text) {
+        return res.status(400).send({message:"Text Required"})
+    }
     try {
+        const textEmbed = await embed(text);
+        const results = await ContentModel.aggregate([
+            {
+                $vectorSearch: {
+                    index: "content_vector_index", 
+                    path: "embedding", 
+                    queryVector : textEmbed,
+                    numCandidates: 100, 
+                    limit: 10, 
+                    filter : {
+                        userId: new mongoose.Types.ObjectId(userId)
+                    }
+                }
+            }, 
+            {
+                $lookup : {
+                    from : "tags", 
+                    localField: "tags" ,
+                    foreignField: "_id", 
+                    as: "tags"
+                },
+            },
+            {
+                $project : {
+                    id : {$toString : "$_id"}, 
+                    _id: 0, 
+                    title: 1, 
+                    link: 1, 
+                    type: 1,
+                    date: 1,
+                    tags: {
+                        $map: { input: "$tags", as: "t", in: "$$t.tag"}
+                    },
+                    score: {$meta : "vectorSearchScore"},
+                },
+            },
+        ]);
+        return res.status(200).send(results);
 
     } catch (err) {
         console.log("search Error", err)
