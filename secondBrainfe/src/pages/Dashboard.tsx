@@ -13,18 +13,23 @@ import { ShareContentModal } from "../components/ShareContentModal";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { UserModal } from "../components/UserModal";
+import { SearchBar } from "../components/SearchBar";
+import { useSearch } from "../hooks/useSearch";
 export function Dashboard() {
     type ContentType = 'tweet' | 'youtube' | 'article' | 'document' | 'link';
     const [modalOpen,setModalOpen] = useState(false)
     const [filter, setFilter] = useState<null | ContentType>(null);
     const [shareModal, setShareModalOpen]= useState(false)
     const {contents,refresh} = useContent() 
+    const {results, searching, active, search, clear} = useSearch()
     const { user} = useAuth();
     const navigate = useNavigate();
     const visible = filter ? contents.filter(c => c.type === filter) : contents;
+    const displayItems = active ? results : visible
     return <div className="flex">
         <Sidebar onSelect={(type) => setFilter(type)}/>
         <div className="ml-96 flex-1">
+            
         <CreateContentModal open = {modalOpen} onClose={() => {
             setModalOpen(false)
             refresh();
@@ -35,10 +40,13 @@ export function Dashboard() {
         }}/>
         
         <div className="bg-white py-6 flex items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold whitespace-nowrap shrink-0">All Notes</h1>
+                <h1 className="text-3xl font-bold whitespace-nowrap shrink-0">
+            {active ? "Search Results" : "All Notes"}
+            </h1>
         <div className="flex mr-8 justify-end gap-4">
         {user && (
             <>
+                <SearchBar onSearch={search} onClear={clear} />
                 <Button text="Share Brain" startIcon={<ShareIcon/>}
                     onClick={() => setShareModalOpen(true)}
                     variant="secondary" fullWidth={false} loading={false}/>
@@ -74,7 +82,7 @@ export function Dashboard() {
     date: string, 
     tag : string[]
 } */}
-        {visible.map(({id,title,link, type, date, tags}) => 
+        {displayItems.map(({id, title, link, type, date, tags}) => 
         {
             let icon = null;
             if(type == "youtube") icon = <YoutubeIcon />

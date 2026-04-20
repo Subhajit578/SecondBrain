@@ -9,15 +9,16 @@ export async function extractText(
     link: string | undefined,
     tags: string[]
 ): Promise<string> {
-const baseline = [title, ...tags].join("");
+const baseline = [title, ...tags].join(" ");
 if(!link) {
     return baseline;
 }
 try {
     if(type === "youtube") {
-        const transcript = await YoutubeTranscript.fetchTranscript(link)
+        const { YoutubeTranscript } = await import("youtube-transcript");
+        const transcript = await YoutubeTranscript.fetchTranscript(link);
         const transcriptText = transcript.map(t => t.text).join(" ");
-        return `${baseline}\n\n${transcriptText}`.slice(0, 30000)
+        return `${baseline}\n\n${transcriptText}`.slice(0, 30000);
     }
     if(type === "article") {
         const res = await fetch(link);

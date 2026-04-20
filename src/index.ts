@@ -133,14 +133,14 @@ app.post("/app/v1/addContent", isLoggedIn, async function(req, res) {
             })
             return res.status(200).send({message:"Content added to the Brain"})
         } catch (err) {
-            return res.send({Error : err})
+            return res.status(500).send({Error : err})
         }
     }
 }) 
 app.get("/app/v1/getContent", isLoggedIn, async function(req,res){
     const userId = (req as any).id
     try {
-        const data = await ContentModel.find({userId:userId}).populate({path:'tags', select : 'tag -_id'}).lean()
+        const data = await ContentModel.find({userId}).select('-embedding').populate({path:'tags', select:'tag -_id'}).lean()
         //@ts-ignore
         const response = data.map(d => ({
             id:String(d._id), 
@@ -177,7 +177,7 @@ app.get("/app/v1/search", isLoggedIn, async function(req, res) {
         const results = await ContentModel.aggregate([
             {
                 $vectorSearch: {
-                    index: "content_vector_index", 
+                    index: "vector_index", 
                     path: "embedding", 
                     queryVector : textEmbed,
                     numCandidates: 100, 
@@ -187,14 +187,6 @@ app.get("/app/v1/search", isLoggedIn, async function(req, res) {
                     }
                 }
             }, 
-            {
-                $lookup : {
-                    from : "tags", 
-                    localField: "tags" ,
-                    foreignField: "_id", 
-                    as: "tags"
-                },
-            },
             {
                 $project : {
                     id : {$toString : "$_id"}, 

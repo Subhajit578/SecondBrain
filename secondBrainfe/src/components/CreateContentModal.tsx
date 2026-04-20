@@ -18,6 +18,7 @@ export function CreateContentModal({open, onClose}:{open : boolean, onClose :() 
     const titleRef = useRef<HTMLInputElement>(null)
     const linkRef = useRef<HTMLInputElement>(null)
     const [type, setType] = useState<string>()
+    const [loading, setLoading] = useState(false)
     const tagRef = useRef<HTMLInputElement>(null)
     // //interface ButtonProps {
     // variant : "primary" | "secondary" , 
@@ -28,6 +29,8 @@ export function CreateContentModal({open, onClose}:{open : boolean, onClose :() 
     // startIcon? : ReactElement
     if (!open) return null;
     async function addContent() {
+        if(loading) return;
+        setLoading(true);
         if (!type) {
             alert("Please select a type: Youtube, Twitter, or Article.");
             return;
