@@ -39,5 +39,5 @@ export function useSearch() {
         setResults([]);
         setActive(false);
     }
-    return {results, searching, active, search, clear}
+    return {results, searching, active, search, clear};
 }
