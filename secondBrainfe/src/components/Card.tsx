@@ -76,7 +76,7 @@ interface CardProps {
     icon: ReactElement, 
     date: string, 
     tag : string[],
-    onDelete: () => void;
+    onDelete?: () => void;
 }
 export function Card({id,title, link, type, icon, date, tag, onDelete} : CardProps) {
 
@@ -85,7 +85,7 @@ export function Card({id,title, link, type, icon, date, tag, onDelete} : CardPro
             data: { contentId: id },
             headers: { token: localStorage.getItem("token") ?? "" }
           });
-          onDelete();
+          onDelete?.();
     }
     async function getLink(id:string): Promise<string | null> {
         try {

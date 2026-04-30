@@ -11,7 +11,6 @@ import { YoutubeIcon } from "../icons/YoutubeIcon";
 import { useContent } from "../hooks/useContent";
 import { ShareContentModal } from "../components/ShareContentModal";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 import { UserModal } from "../components/UserModal";
 import { SearchBar } from "../components/SearchBar";
 import { useSearch } from "../hooks/useSearch";
@@ -21,9 +20,8 @@ export function Dashboard() {
     const [filter, setFilter] = useState<null | ContentType>(null);
     const [shareModal, setShareModalOpen]= useState(false)
     const {contents,refresh} = useContent() 
-    const {results, searching, active, search, clear} = useSearch()
+    const {results, active, search, clear} = useSearch()
     const { user} = useAuth();
-    const navigate = useNavigate();
     const visible = filter ? contents.filter(c => c.type === filter) : contents;
     const displayItems = active ? results : visible
     return <div className="flex">
