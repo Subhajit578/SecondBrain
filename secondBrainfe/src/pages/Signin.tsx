@@ -30,9 +30,10 @@ export function Signin() {
     return <div className="h-screen w-screen flex bg-gray-200 justify-center items-center">
         <div className="bg-white rounded-xl border min-w-48 p-8">
         <Input placeholder="Username" ref = {usernameRef}/>
-        <Input placeholder="Password" ref = {passwordRef}/>
-        <div className="flex justify-center pt-4">
-        <Button onClick={signin} variant = "primary" loading = {false} text= "Signin" fullWidth= {true}/>
+        <Input placeholder="Password" ref={passwordRef} type="password"/>
+        <div className="flex flex-col gap-2 pt-4">
+        <Button onClick={signin} variant="primary" loading={false} text="Signin" fullWidth={true}/>
+        <Button onClick={() => navigate("/signup")} variant="secondary" loading={false} text="Signup" fullWidth={true}/>
         </div>
         </div>
     </div>

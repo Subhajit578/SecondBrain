@@ -32,9 +32,10 @@ export function Signup() {
         <div className="bg-white rounded-xl border min-w-48 p-8">
             <Input placeholder="email" ref = {emailRef}/>
             <Input placeholder="username" ref = {usernameRef}/>
-            <Input placeholder="password" ref = {passwordRef}/>
-            <div className="flex justify-center pt-4">
-            <Button variant="primary" text = "Create A Account" onClick = {signup} loading = {false} fullWidth = {true}/>
+            <Input placeholder="password" ref={passwordRef} type="password"/>
+            <div className="flex flex-col gap-2 pt-4">
+            <Button variant="primary" text="Create A Account" onClick={signup} loading={false} fullWidth={true}/>
+            <Button variant="secondary" text="Signin" onClick={() => navigate("/signin")} loading={false} fullWidth={true}/>
             </div>
         </div>
     </div>
