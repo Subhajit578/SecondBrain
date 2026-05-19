@@ -33,9 +33,13 @@ const idealSigninUser = z.object({
     password : z.string().min(5).max(15).regex(/[@&_#]/,"Password Should contain a special character"). regex(/[a-z]/,"Password should contain one lowercase character"). regex(/[A-Z]/,"Password Should contain one Upper Case Charcter")
     .regex(/[0-9]/,"Password Should contain one number from 0-9")
 })
+function dbReady() {
+    return mongoose.connection.readyState === 1
+}
+
 app.get("/health", (_req, res) => {
     const dbState = mongoose.connection.readyState
-    const ok = dbState === 1
+    const ok = dbReady()
     res.status(ok ? 200 : 503).send({
         ok,
         db: ["disconnected", "connected", "connecting", "disconnecting"][dbState] ?? "unknown"
@@ -49,6 +53,9 @@ const idealContent = z.object({
     tags: z.array(z.string().min(1)).default([])
 })
 app.post("/app/v1/signup", async function(req, res) {
+    if (!dbReady()) {
+        return res.status(503).send({message: "Database not connected. Try again in a moment."})
+    }
     const inputUser = req.body
     const parsedData = idealUser.safeParse(inputUser)
     if(!parsedData.success) {
@@ -322,8 +329,8 @@ async function start() {
         console.error("MONGODB_URI is not set")
         process.exit(1)
     }
-    app.listen(PORT, () => console.log(`Server listening on port ${PORT}`))
     await connectDb(uri)
+    app.listen(PORT, () => console.log(`Server listening on port ${PORT}`))
 }
 
 start()
