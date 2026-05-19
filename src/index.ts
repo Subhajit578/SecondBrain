@@ -54,8 +54,12 @@ app.post("/app/v1/signup", async function(req, res) {
                 email : inputUser.email
             })
             return res.status(200).send({message: "User Created"})
-        } catch {
-            return res.status(403).send({message:"User Already Exists"})
+        } catch (err: any) {
+            if (err?.code === 11000) {
+                return res.status(403).send({message:"User Already Exists"})
+            }
+            console.error("Signup failed:", err)
+            return res.status(500).send({message: "Could not create user. Check database connection."})
         }
     }
 })

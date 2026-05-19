@@ -16,6 +16,7 @@ export function Signup() {
      let password = passwordRef.current?.value.trim()
      if(!username || !password || !email) {
         alert("Enter the username Password Again")
+        return
      } 
      try{
      const success = await axios.post(`${BACKEND_URL}/app/v1/signup`, {email,username, password})
@@ -24,8 +25,9 @@ export function Signup() {
      } else {
         navigate("/signup")
      }
-    } catch(err) {
-        alert("Network error.")
+    } catch(err: any) {
+        const msg = err?.response?.data?.message
+        alert(msg || "Network error.")
     }
     }
     return <div className="h-screen w-screen flex justify-center items-center bg-gray-200">

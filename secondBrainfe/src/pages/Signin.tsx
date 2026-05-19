@@ -23,8 +23,9 @@ export function Signin() {
             localStorage.setItem("token", jwt)
             login(res.data.token);
             navigate("/dashboard")
-        } catch {
-            alert("Network Error")
+        } catch (err: any) {
+            const msg = err?.response?.data?.message
+            alert(msg || "Network Error")
         }
     }
     return <div className="h-screen w-screen flex bg-gray-200 justify-center items-center">
