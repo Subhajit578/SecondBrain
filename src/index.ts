@@ -303,20 +303,27 @@ app.get("/app/v1/brain/shareLink/:hash", async function (req,res){
 })
 const PORT = Number(process.env.PORT) || 3000
 
+async function connectDb(uri: string) {
+    while (true) {
+        try {
+            await mongoose.connect(uri)
+            console.log("MongoDB connected")
+            return
+        } catch (err) {
+            console.error("MongoDB connection failed, retrying in 5s:", err)
+            await new Promise((r) => setTimeout(r, 5000))
+        }
+    }
+}
+
 async function start() {
     const uri = process.env.MONGODB_URI
     if (!uri) {
         console.error("MONGODB_URI is not set")
         process.exit(1)
     }
-    try {
-        await mongoose.connect(uri)
-        console.log("MongoDB connected")
-    } catch (err) {
-        console.error("MongoDB connection failed:", err)
-        process.exit(1)
-    }
     app.listen(PORT, () => console.log(`Server listening on port ${PORT}`))
+    await connectDb(uri)
 }
 
 start()
