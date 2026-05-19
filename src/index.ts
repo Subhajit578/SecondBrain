@@ -13,7 +13,6 @@ import {embed} from './embed'
 import { extractText } from './extractText'
 //@ts-ignore
 const JWT_SECRET:string = process.env.JWT_SECRET
-mongoose.connect(process.env.MONGODB_URI as string)
 const app = express()
 app.use(express.json())
 app.use(cors())
@@ -34,6 +33,15 @@ const idealSigninUser = z.object({
     password : z.string().min(5).max(15).regex(/[@&_#]/,"Password Should contain a special character"). regex(/[a-z]/,"Password should contain one lowercase character"). regex(/[A-Z]/,"Password Should contain one Upper Case Charcter")
     .regex(/[0-9]/,"Password Should contain one number from 0-9")
 })
+app.get("/health", (_req, res) => {
+    const dbState = mongoose.connection.readyState
+    const ok = dbState === 1
+    res.status(ok ? 200 : 503).send({
+        ok,
+        db: ["disconnected", "connected", "connecting", "disconnecting"][dbState] ?? "unknown"
+    })
+})
+
 const idealContent = z.object({
     type: z.enum(['document', 'tweet', 'youtube', 'link' , 'article']), 
     link: z.string().url().optional(), 
@@ -294,4 +302,21 @@ app.get("/app/v1/brain/shareLink/:hash", async function (req,res){
     }
 })
 const PORT = Number(process.env.PORT) || 3000
-app.listen(PORT)
+
+async function start() {
+    const uri = process.env.MONGODB_URI
+    if (!uri) {
+        console.error("MONGODB_URI is not set")
+        process.exit(1)
+    }
+    try {
+        await mongoose.connect(uri)
+        console.log("MongoDB connected")
+    } catch (err) {
+        console.error("MongoDB connection failed:", err)
+        process.exit(1)
+    }
+    app.listen(PORT, () => console.log(`Server listening on port ${PORT}`))
+}
+
+start()
