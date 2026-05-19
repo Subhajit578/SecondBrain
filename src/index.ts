@@ -329,8 +329,8 @@ async function start() {
         console.error("MONGODB_URI is not set")
         process.exit(1)
     }
-    await connectDb(uri)
     app.listen(PORT, () => console.log(`Server listening on port ${PORT}`))
+    void connectDb(uri)
 }
 
 start()
